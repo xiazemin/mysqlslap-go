@@ -11,9 +11,15 @@ import (
 
 func Run(ctx context.Context,
 	client *sql.DB,
-	sql string,
+	sqls []string,
 	concurrency int,
 	iteration int) {
+
+	if len(sqls) < 1 {
+		fmt.Println("should input at least one sql")
+		return
+	}
+	sqlLen := len(sqls)
 
 	queue := make(chan int, concurrency)
 	go func() {
@@ -33,7 +39,7 @@ func Run(ctx context.Context,
 	for i := range queue {
 		go func(ctx context.Context, i int) {
 			defer wg.Done()
-			rows, err := db.ExecQuery(ctx, client, sql)
+			rows, err := db.ExecQuery(ctx, client, sqls[i%sqlLen])
 			fmt.Print("*")
 			if err != nil {
 				failed++

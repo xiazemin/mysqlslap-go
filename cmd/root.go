@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"mysqlslap/db"
+	"mysqlslap/file"
 	"mysqlslap/run"
 	"os"
 
@@ -38,6 +39,7 @@ var sql string
 var concurrency int
 var iteration int
 var timeout int64
+var fileName string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -58,17 +60,28 @@ to quickly create a Cobra application.`,
 			" -P", password,
 			" -d", database,
 			" -q", sql,
+			" -f", fileName,
 			" -c", concurrency,
 			" -i", iteration, "\n", "start...")
 
 		ctx, cancelFunc := context.WithCancel(context.Background())
 		defer cancelFunc()
 
+		sqls, err := file.LoadSql(ctx, fileName)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if sql != "" {
+			sqls = append(sqls, sql)
+		}
+
 		db, err := db.GetClient(ctx, host, port, user, password, database, concurrency, timeout)
 		if err != nil {
-			panic(err)
+			fmt.Println(err)
+			return
 		}
-		run.Run(ctx, db, sql, concurrency, iteration)
+		run.Run(ctx, db, sqls, concurrency, iteration)
 	},
 }
 
@@ -98,7 +111,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&database, "database", "d", "mysql", "database name,default mysql")
 
-	rootCmd.PersistentFlags().StringVarP(&sql, "query", "q", "show tables;", "the query you want to run,default show tables")
+	rootCmd.PersistentFlags().StringVarP(&sql, "query", "q", "", "the query you want to run,default show tables")
 
 	rootCmd.PersistentFlags().IntVarP(&concurrency, "concurrency", "c", 30, "concurrency,default 30")
 
@@ -107,6 +120,8 @@ func init() {
 	rootCmd.PersistentFlags().Int64VarP(&timeout, "timeout", "t", 3600, "db connect time out (second),default 3600")
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mysqlslap.yaml)")
+
+	rootCmd.PersistentFlags().StringVarP(&fileName, "file", "f", "", "input sql list eg: './sql_list.json', json format(comma ',' separate),will be merged to q, the sql will be sent in round-robin fashion. ")
 }
 
 // initConfig reads in config file and ENV variables if set.
