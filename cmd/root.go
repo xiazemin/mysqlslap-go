@@ -40,6 +40,7 @@ var concurrency int
 var iteration int
 var timeout int64
 var fileName string
+var result bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -81,7 +82,7 @@ to quickly create a Cobra application.`,
 			fmt.Println(err)
 			return
 		}
-		run.Run(ctx, db, sqls, concurrency, iteration)
+		run.Run(ctx, db, sqls, concurrency, iteration, result)
 	},
 }
 
@@ -122,6 +123,8 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mysqlslap.yaml)")
 
 	rootCmd.PersistentFlags().StringVarP(&fileName, "file", "f", "", "input sql list eg: './sql_list.json', json format(comma ',' separate),will be merged to q, the sql will be sent in round-robin fashion. ")
+
+	rootCmd.PersistentFlags().BoolVarP(&result, "result", "r", false, "output the sql and result for test")
 }
 
 // initConfig reads in config file and ENV variables if set.
