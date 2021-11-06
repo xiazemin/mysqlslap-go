@@ -42,18 +42,20 @@ func Run(ctx context.Context,
 	for i := range queue {
 		go func(ctx context.Context, i int) {
 			defer wg.Done()
+			last := time.Now()
 			rows, err := db.ExecQuery(ctx, client, sqls[i%sqlLen])
-			elapsed = append(elapsed, float64(time.Since(start).Milliseconds()))
-			fmt.Print("*")
 			if err != nil {
 				failed++
 			} else {
 				success++
 			}
+			queryRows += rows
 			if result {
 				fmt.Println(sqls[i%sqlLen], err)
 			}
-			queryRows += rows
+
+			elapsed = append(elapsed, float64(time.Since(last).Milliseconds()))
+			fmt.Print("*")
 		}(ctx, i)
 	}
 	wg.Wait()
@@ -65,7 +67,7 @@ func Run(ctx context.Context,
 		fmt.Println("success:", success, "/", iteration)
 		fmt.Println("failed:", failed, "/", iteration)
 		fmt.Println("affected rows:", queryRows)
-		fmt.Println("rows per second:", float32(queryRows*1000)/float32(timeElapsed.Microseconds()))
+		fmt.Println("rows per second:", float32(queryRows*1000)/float32(timeElapsed.Milliseconds()))
 		return
 	}
 

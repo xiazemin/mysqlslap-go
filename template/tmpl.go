@@ -10,7 +10,7 @@ Summary:
   Average:	{{ formatNanoUnit .Average }}
   Requests/sec:	{{ formatSeconds .Rps }}
 
-Response time histogram:
+Response time histogram(ms):
 {{ histogram .Histogram }}
 Latency distribution:{{ range .LatencyDistribution }}
   {{ .Percentage }} % in {{ formatNanoUnit .Latency }} {{ end }}

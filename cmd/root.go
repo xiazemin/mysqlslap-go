@@ -63,7 +63,11 @@ to quickly create a Cobra application.`,
 			" -q", sql,
 			" -f", fileName,
 			" -c", concurrency,
-			" -i", iteration, "\n", "start...")
+			" -i", iteration,
+			" -t", timeout,
+			" -f", fileName,
+			" -r", result,
+			"\n", "start...")
 
 		ctx, cancelFunc := context.WithCancel(context.Background())
 		defer cancelFunc()
