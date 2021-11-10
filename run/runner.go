@@ -54,7 +54,7 @@ func Run(ctx context.Context,
 				fmt.Println(sqls[i%sqlLen], err)
 			}
 
-			elapsed = append(elapsed, float64(time.Since(last).Milliseconds()))
+			elapsed = append(elapsed, time.Since(last).Seconds())
 			fmt.Print("*")
 		}(ctx, i)
 	}
@@ -63,11 +63,11 @@ func Run(ctx context.Context,
 	timeElapsed := time.Since(start)
 
 	if len(elapsed) < 1 {
-		fmt.Println("\ntime elapsed(ms):", timeElapsed)
+		fmt.Println("\ntime elapsed :", timeElapsed)
 		fmt.Println("success:", success, "/", iteration)
 		fmt.Println("failed:", failed, "/", iteration)
 		fmt.Println("affected rows:", queryRows)
-		fmt.Println("rows per second:", float32(queryRows*1000)/float32(timeElapsed.Milliseconds()))
+		fmt.Println("rows per second:", float64(queryRows)/timeElapsed.Seconds())
 		return
 	}
 
@@ -77,10 +77,10 @@ func Run(ctx context.Context,
 		Count: uint64(iteration),
 
 		Total:   timeElapsed,
-		Fastest: time.Millisecond * time.Duration(elapsed[0]),
-		Slowest: time.Millisecond * time.Duration(elapsed[len(elapsed)-1]),
-		Average: time.Millisecond * time.Duration(report.AverageFloat64(elapsed)),
-		Rps:     float64(iteration*1000) / float64(timeElapsed.Milliseconds()),
+		Fastest: time.Duration(elapsed[0] * float64(time.Second)),
+		Slowest: time.Duration(elapsed[len(elapsed)-1] * float64(time.Second)),
+		Average: time.Duration(report.AverageFloat64(elapsed) * float64(time.Second)),
+		Rps:     float64(iteration) / timeElapsed.Seconds(),
 
 		Histogram:           histogram,
 		LatencyDistribution: distribution,

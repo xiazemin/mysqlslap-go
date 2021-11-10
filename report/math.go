@@ -37,7 +37,7 @@ func latencies(latencies []float64) []LatencyDistribution {
 	res := make([]LatencyDistribution, len(pctls))
 	for i := 0; i < len(pctls); i++ {
 		if data[i] > 0 {
-			lat := time.Duration(data[i] * float64(time.Millisecond))
+			lat := time.Duration(data[i] * float64(time.Second))
 			res[i] = LatencyDistribution{Percentage: pctls[i], Latency: lat}
 		}
 	}
@@ -85,7 +85,7 @@ func histogram(latencies []float64, slowest, fastest float64) []Bucket {
 	res := make([]Bucket, len(buckets))
 	for i := 0; i < len(buckets); i++ {
 		res[i] = Bucket{
-			Mark:      time.Duration(buckets[i] * float64(time.Millisecond)).Seconds(),
+			Mark:      buckets[i],
 			Count:     counts[i],
 			Frequency: float64(counts[i]) / float64(len(latencies)),
 		}
