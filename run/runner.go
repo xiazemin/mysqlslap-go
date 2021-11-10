@@ -77,8 +77,8 @@ func Run(ctx context.Context,
 		Count: uint64(iteration),
 
 		Total:   timeElapsed,
-		Slowest: time.Millisecond * time.Duration(elapsed[0]),
-		Fastest: time.Millisecond * time.Duration(elapsed[len(elapsed)-1]),
+		Fastest: time.Millisecond * time.Duration(elapsed[0]),
+		Slowest: time.Millisecond * time.Duration(elapsed[len(elapsed)-1]),
 		Average: time.Millisecond * time.Duration(report.AverageFloat64(elapsed)),
 		Rps:     float64(iteration*1000) / float64(timeElapsed.Milliseconds()),
 
