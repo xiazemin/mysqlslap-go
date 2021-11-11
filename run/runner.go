@@ -24,12 +24,6 @@ func Run(ctx context.Context,
 	sqlLen := len(sqls)
 
 	queue := make(chan int, concurrency)
-	go func() {
-		for i := 0; i < iteration; i++ {
-			queue <- i
-		}
-		close(queue)
-	}()
 
 	success := 0
 	failed := 0
@@ -39,7 +33,9 @@ func Run(ctx context.Context,
 	start := time.Now()
 	wg := sync.WaitGroup{}
 	wg.Add(int(iteration))
-	for i := range queue {
+
+	for i := 0; i < iteration; i++ {
+		queue <- i
 		go func(ctx context.Context, i int) {
 			defer wg.Done()
 			last := time.Now()
@@ -56,8 +52,11 @@ func Run(ctx context.Context,
 
 			elapsed = append(elapsed, time.Since(last).Seconds())
 			fmt.Print("*")
+			<-queue
 		}(ctx, i)
 	}
+
+	close(queue)
 	wg.Wait()
 
 	timeElapsed := time.Since(start)
