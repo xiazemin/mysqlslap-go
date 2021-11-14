@@ -84,7 +84,7 @@ func histogram(latencies []float64, slowest, fastest float64) []Bucket {
 		}
 	}
 
-	fmt.Println(latencies, buckets, counts)
+	//fmt.Println(latencies, buckets, counts)
 	res := make([]Bucket, len(buckets))
 	for i := 0; i < len(buckets); i++ {
 		res[i] = Bucket{
